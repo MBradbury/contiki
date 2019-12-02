@@ -30,14 +30,13 @@
 
 package org.contikios.cooja;
 
+import java.lang.ref.WeakReference;
+
 /**
  * @author Joakim Eriksson (ported to COOJA by Fredrik Osterlind)
  */
-public abstract class TimeEvent {
-  TimeEvent nextEvent;
-  TimeEvent prevEvent;
-
-  EventQueue queue = null;
+public abstract class TimeEvent implements Comparable<TimeEvent> {
+  WeakReference<EventQueue> queue = null;
   String name;
 
   protected long time;
@@ -70,6 +69,11 @@ public abstract class TimeEvent {
 
   public String getShort() {
     return "" + time + (name != null ? ": " + name : "");
+  }
+
+  public int compareTo(TimeEvent other) {
+    return (time < other.time) ? -1 :
+           (time > other.time) ? +1 : 0;
   }
 
 }

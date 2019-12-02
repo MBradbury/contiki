@@ -792,7 +792,7 @@ public class Simulation extends Observable implements Runnable {
               ev.remove();
             }
           }
-          ev = ev.nextEvent;
+          ev = eventQueue.peekFirst();
         }
       }
     };

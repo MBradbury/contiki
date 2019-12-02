@@ -30,13 +30,14 @@
 
 package org.contikios.cooja;
 
+import java.lang.ref.WeakReference;
+import java.util.PriorityQueue;
+
 /**
  * @author Joakim Eriksson (ported to COOJA by Fredrik Osterlind)
  */
-public class EventQueue {
-
-  private TimeEvent first;
-  private int eventCount = 0;
+public final class EventQueue {
+  private final PriorityQueue<TimeEvent> queue = new PriorityQueue<TimeEvent>();
 
   /**
    * Should only be called from simulation thread!
@@ -57,29 +58,10 @@ public class EventQueue {
       removeFromQueue(event);
     }
 
-    if (first == null) {
-      first = event;
-    } else {
-      TimeEvent pos = first;
-      TimeEvent lastPos = first;
-      while (pos != null && pos.time <= event.time) {
-        lastPos = pos;
-        pos = pos.nextEvent;
-      }
-      // Here pos will be the first TE after event
-      // and lastPos the first before
-      if (pos == first) {
-        // Before all other
-        event.nextEvent = pos;
-        first = event;
-      } else {
-        event.nextEvent = pos;
-        lastPos.nextEvent = event;
-      }
-    }
-    event.queue = this;
+    queue.add(event);
+
+    event.queue = new WeakReference<EventQueue>(this);
     event.isScheduled = true;
-    eventCount++;
   }
 
   /**
@@ -89,31 +71,15 @@ public class EventQueue {
    * @return True if event was removed
    */
   private boolean removeFromQueue(TimeEvent event) {
-    TimeEvent pos = first;
-    TimeEvent lastPos = first;
+    boolean removed = queue.remove(event);
 
-    while (pos != null && pos != event) {
-      lastPos = pos;
-      pos = pos.nextEvent;
+    if (removed)
+    {
+      event.queue = null;
+      event.isScheduled = false;
     }
-    if (pos == null) {
-      return false;
-    }
-    // pos == event!
-    if (pos == first) {
-      // remove it from first pos.
-      first = pos.nextEvent;
-    } else {
-      // else link prev to next...
-      lastPos.nextEvent = pos.nextEvent;
-    }
-    // unlink
-    pos.nextEvent = null;
 
-    event.queue = null;
-    event.isScheduled = false;
-    eventCount--;
-    return true;
+    return removed;
   }
 
   public void removeAll() {
@@ -129,21 +95,16 @@ public class EventQueue {
    * @return Event
    */
   public TimeEvent popFirst() {
-    TimeEvent tmp = first;
+    TimeEvent tmp = queue.poll();
     if (tmp == null) {
       return null;
     }
 
-    first = tmp.nextEvent;
-    // Unlink.
-    tmp.nextEvent = null;
-
     // No longer scheduled!
     tmp.queue = null;
-    eventCount--;
 
     if (!tmp.isScheduled) {
-      /* pop and return another event instead */
+      // pop and return another event instead
       return popFirst();
     }
     tmp.isScheduled = false;
@@ -151,10 +112,10 @@ public class EventQueue {
   }
 
   public TimeEvent peekFirst() {
-    return first;
+    return queue.peek();
   }
 
   public String toString() {
-    return "EventQueue with " + eventCount + " events";
+    return "EventQueue with " + queue.size() + " events";
   }
 }
