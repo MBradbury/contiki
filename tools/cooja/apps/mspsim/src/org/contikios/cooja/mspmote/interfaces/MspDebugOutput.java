@@ -102,7 +102,7 @@ public class MspDebugOutput extends Log {
           return sb.toString();
         }
         sb.append((char)b);
-        if (sb.length() > 128) {
+        if (sb.length() > 256) {
           /* Maximum size */
           return sb.toString() + "...";
         }
