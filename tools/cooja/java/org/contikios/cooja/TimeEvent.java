@@ -30,18 +30,16 @@
 
 package org.contikios.cooja;
 
-import java.lang.ref.WeakReference;
-
 /**
  * @author Joakim Eriksson (ported to COOJA by Fredrik Osterlind)
  */
 public abstract class TimeEvent implements Comparable<TimeEvent> {
-  WeakReference<EventQueue> queue = null;
-  String name;
+  
+  private final String name;
+  private boolean isQueued = false;
+  private boolean isScheduled = false;
 
   protected long time;
-
-  boolean isScheduled = false;
 
   public TimeEvent(long time) {
     this(time, null);
@@ -60,9 +58,17 @@ public abstract class TimeEvent implements Comparable<TimeEvent> {
     return isScheduled;
   }
 
-  public boolean remove() {
+  public boolean isQueued() {
+    return isQueued;
+  }
+
+  public void setScheduled(boolean queued) {
+    isScheduled = queued;
+    isQueued = queued;
+  }
+
+  public void remove() {
     isScheduled = false;
-    return false;
   }
 
   public abstract void execute(long t);

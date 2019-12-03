@@ -30,7 +30,6 @@
 
 package org.contikios.cooja;
 
-import java.lang.ref.WeakReference;
 import java.util.PriorityQueue;
 
 /**
@@ -51,8 +50,8 @@ public final class EventQueue {
   }
 
   private void addEvent(TimeEvent event) {
-    if (event.queue != null) {
-      if (event.isScheduled) {
+    if (event.isQueued()) {
+      if (event.isScheduled()) {
         throw new IllegalStateException("Event is already scheduled: " + event);
       }
       removeFromQueue(event);
@@ -60,8 +59,7 @@ public final class EventQueue {
 
     queue.add(event);
 
-    event.queue = new WeakReference<EventQueue>(this);
-    event.isScheduled = true;
+    event.setScheduled(true);
   }
 
   /**
@@ -75,8 +73,7 @@ public final class EventQueue {
 
     if (removed)
     {
-      event.queue = null;
-      event.isScheduled = false;
+      event.setScheduled(false);
     }
 
     return removed;
@@ -100,14 +97,16 @@ public final class EventQueue {
       return null;
     }
 
-    // No longer scheduled!
-    tmp.queue = null;
+    boolean scheduled = tmp.isScheduled();
 
-    if (!tmp.isScheduled) {
+    // No longer scheduled!
+    tmp.setScheduled(false);
+
+    if (!scheduled) {
       // pop and return another event instead
       return popFirst();
     }
-    tmp.isScheduled = false;
+
     return tmp;
   }
 
