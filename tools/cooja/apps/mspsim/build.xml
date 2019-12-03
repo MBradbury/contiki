@@ -52,6 +52,7 @@ Could not find the MSPSim build file. Did you run &quot;git submodule update --i
         <pathelement location="${coffee_jar}"/>
         <pathelement location="${cooja_jar}"/>
       </classpath>
+      <compilerarg value="-Xlint:unchecked" />
     </javac>
   </target>
 
