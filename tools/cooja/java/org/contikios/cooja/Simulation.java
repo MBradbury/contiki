@@ -195,7 +195,7 @@ public class Simulation extends Observable implements Runnable {
     eventQueue.addEvent(e, time);
   }
 
-  private TimeEvent delayEvent = new TimeEvent(0) {
+  private final TimeEvent delayEvent = new TimeEvent(0) {
     public void execute(long t) {
       if (speedLimitNone) {
         /* As fast as possible: no need to reschedule delay event */
@@ -229,7 +229,7 @@ public class Simulation extends Observable implements Runnable {
     }
   };
 
-  private TimeEvent millisecondEvent = new TimeEvent(0) {
+  private final TimeEvent millisecondEvent = new TimeEvent(0) {
     public void execute(long t) {
       if (!hasMillisecondObservers) {
         return;
@@ -332,7 +332,7 @@ public class Simulation extends Observable implements Runnable {
   public void startSimulation() {
     if (!isRunning()) {
       isRunning = true;
-      simulationThread = new Thread(this);
+      simulationThread = new Thread(this, "Simulation Thread");
       simulationThread.setPriority(Thread.MIN_PRIORITY);
       simulationThread.start();
     }

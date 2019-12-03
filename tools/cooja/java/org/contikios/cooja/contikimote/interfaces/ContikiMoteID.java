@@ -72,7 +72,7 @@ public class ContikiMoteID extends MoteID implements ContikiMoteInterface {
    * Creates an interface to the mote ID at mote.
    *
    * @param mote Mote
-
+   *
    * @see Mote
    * @see org.contikios.cooja.MoteInterfaceHandler
    */

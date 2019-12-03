@@ -38,11 +38,11 @@ import org.contikios.cooja.Simulation;
 import org.contikios.cooja.TimeEvent;
 
 public abstract class AbstractWakeupMote implements Mote {
-  private static Logger logger = Logger.getLogger(AbstractWakeupMote.class);
+  private static final Logger logger = Logger.getLogger(AbstractWakeupMote.class);
   
   protected Simulation simulation = null;
 
-  private TimeEvent executeMoteEvent = new MoteTimeEvent(this, 0) {
+  private final TimeEvent executeMoteEvent = new MoteTimeEvent(this, 0) {
     public void execute(long t) {
       AbstractWakeupMote.this.execute(t);
     }
@@ -137,6 +137,7 @@ public abstract class AbstractWakeupMote implements Mote {
     }
 
     simulation.scheduleEvent(executeMoteEvent, time);
+
     return true;
   }
 

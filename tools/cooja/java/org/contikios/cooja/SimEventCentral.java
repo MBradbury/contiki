@@ -53,9 +53,9 @@ import org.contikios.cooja.util.ArrayUtils;
  * @author Fredrik Osterlind
  */
 public class SimEventCentral {
-  private static Logger logger = Logger.getLogger(SimEventCentral.class);
+  private static final Logger logger = Logger.getLogger(SimEventCentral.class);
 
-  private Simulation simulation;
+  private final Simulation simulation;
 
   public SimEventCentral(Simulation simulation) {
     this.simulation = simulation;

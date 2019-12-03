@@ -42,7 +42,7 @@ import se.sics.mspsim.platform.sky.SkyNode;
 /**
  * @author Fredrik Osterlind
  */
-public class SkyMote extends MspMote {
+public final class SkyMote extends MspMote {
   private static Logger logger = Logger.getLogger(SkyMote.class);
 
   public SkyNode skyNode = null;
