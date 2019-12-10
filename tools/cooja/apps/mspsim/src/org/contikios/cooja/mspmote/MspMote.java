@@ -299,13 +299,14 @@ public abstract class MspMote extends AbstractEmulatedMote implements Mote, Watc
   }
 
   public void execute(long t, int duration) {
-    MspClock clock = ((MspClock) (myMoteInterfaceHandler.getClock()));
-    double deviation = clock.getDeviation();
-    long drift = clock.getDrift();
+    final MspClock clock = (MspClock)myMoteInterfaceHandler.getClock();
+    final double deviation = clock.getDeviation();
+    final long drift = clock.getDrift();
+    final long now = clock.getTime();
 
     /* Wait until mote boots */
-    if (!booted && clock.getTime() < 0) {
-      scheduleNextWakeup(t - clock.getTime());
+    if (!booted && now < 0) {
+      scheduleNextWakeup(t - now);
       return;
     }
     booted = true;
@@ -338,8 +339,7 @@ public abstract class MspMote extends AbstractEmulatedMote implements Mote, Watc
       lastExecute = t;
     } catch (EmulationException e) {
       String trace = e.getMessage() + "\n\n" + getStackTrace();
-      throw (ContikiError)
-      new ContikiError(trace).initCause(e);
+      throw (ContikiError) new ContikiError(trace).initCause(e);
     }
 
     /* Schedule wakeup */
@@ -348,7 +348,7 @@ public abstract class MspMote extends AbstractEmulatedMote implements Mote, Watc
     }
 
     /*logger.debug(t + ": Schedule next wakeup at " + nextExecute);*/
-    executed += duration; 
+    executed += duration;
     scheduleNextWakeup(nextExecute);
 
     if (stopNextInstruction) {

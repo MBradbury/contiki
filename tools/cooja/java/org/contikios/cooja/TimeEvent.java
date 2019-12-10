@@ -35,19 +35,13 @@ package org.contikios.cooja;
  */
 public abstract class TimeEvent implements Comparable<TimeEvent> {
   
-  private final String name;
   private boolean isQueued = false;
   private boolean isScheduled = false;
 
   protected long time;
 
   public TimeEvent(long time) {
-    this(time, null);
-  }
-
-  public TimeEvent(long time, String name) {
     this.time = time;
-    this.name = name;
   }
 
   public final long getTime() {
@@ -71,15 +65,11 @@ public abstract class TimeEvent implements Comparable<TimeEvent> {
     isScheduled = false;
   }
 
-  public abstract void execute(long t);
-
-  public String getShort() {
-    return "" + time + (name != null ? ": " + name : "");
-  }
-
   public final int compareTo(TimeEvent other) {
     //return Long.compare(time, other.time);
     return (time < other.time) ? -1 :
            (time > other.time) ? +1 : 0;
   }
+
+  public abstract void execute(long t);
 }

@@ -56,7 +56,7 @@ public class Simulation extends Observable implements Runnable {
   public static final long MICROSECOND = 1L;
   public static final long MILLISECOND = 1000*MICROSECOND;
 
-  /*private static long EVENT_COUNTER = 0;*/
+  //private long EVENT_COUNTER = 0;
 
   private Vector<Mote> motes = new Vector<Mote>();
   private Vector<Mote> motesUninit = new Vector<Mote>();
@@ -97,8 +97,8 @@ public class Simulation extends Observable implements Runnable {
   private SafeRandom randomGenerator;
 
   private boolean hasMillisecondObservers = false;
-  private MillisecondObservable millisecondObservable = new MillisecondObservable();
-  private class MillisecondObservable extends Observable {
+  private final MillisecondObservable millisecondObservable = new MillisecondObservable();
+  private final class MillisecondObservable extends Observable {
     private void newMillisecond(long time) {
       setChanged();
       notifyObservers(time);
@@ -244,7 +244,7 @@ public class Simulation extends Observable implements Runnable {
   };
 
   public void clearEvents() {
-    eventQueue.removeAll();
+    eventQueue.clear();
     pollRequests.clear();
   }
 
@@ -277,7 +277,7 @@ public class Simulation extends Observable implements Runnable {
           throw new RuntimeException("Next event is in the past: " + nextEvent.time + " < " + currentSimulationTime + ": " + nextEvent);
         }
         currentSimulationTime = nextEvent.time;
-        /*logger.info("Executing event #" + EVENT_COUNTER++ + " @ " + currentSimulationTime + ": " + nextEvent);*/
+        //logger.info("Executing event #" + EVENT_COUNTER++ + " @ " + currentSimulationTime + ": " + nextEvent);
         nextEvent.execute(currentSimulationTime);
 
         if (stopSimulation) {
@@ -307,8 +307,6 @@ public class Simulation extends Observable implements Runnable {
     simulationThread = null;
     stopSimulation = false;
 
-    this.setChanged();
-    this.notifyObservers(this);
     logger.info("Simulation main loop stopped, system time: " + System.currentTimeMillis() +
         "\tDuration: " + (System.currentTimeMillis() - lastStartTime) +
                 " ms" +
@@ -316,6 +314,10 @@ public class Simulation extends Observable implements Runnable {
                 " ms\tRatio " +
                 ((double)getSimulationTimeMillis() /
                  (double)(System.currentTimeMillis() - lastStartTime)));
+    logger.info("Event queue performance statistics: " + eventQueue.perfstats());
+
+    this.setChanged();
+    this.notifyObservers(this);
   }
 
   /**
@@ -783,17 +785,10 @@ public class Simulation extends Observable implements Runnable {
         setChanged();
         notifyObservers(mote);
 
-        /* Loop through all scheduled events.
-         * Delete all events associated with deleted mote. */
-        TimeEvent ev = eventQueue.peekFirst();
-        while (ev != null) {
-          if (ev instanceof MoteTimeEvent) {
-            if (((MoteTimeEvent)ev).getMote() == mote) {
-              ev.remove();
-            }
-          }
-          ev = eventQueue.peekFirst();
-        }
+        // Delete all events associated with deleted mote.
+        eventQueue.removeIf(
+          (TimeEvent ev) ->
+            ev instanceof MoteTimeEvent && ((MoteTimeEvent)ev).getMote() == mote);
       }
     };
 
@@ -1149,7 +1144,7 @@ public class Simulation extends Observable implements Runnable {
    * @return True if simulation is runnable
    */
   public boolean isRunnable() {
-    return isRunning || hasPollRequests || eventQueue.peekFirst() != null;
+    return isRunning || hasPollRequests || !eventQueue.isEmpty();
   }
 
   /**

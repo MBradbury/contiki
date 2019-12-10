@@ -366,7 +366,7 @@ public class LogScriptEngine {
     }
   }
 
-  private TimeEvent timeoutEvent = new TimeEvent(0) {
+  private final TimeEvent timeoutEvent = new TimeEvent(0) {
     public void execute(long t) {
       if (!scriptActive) {
         return;
@@ -377,7 +377,8 @@ public class LogScriptEngine {
       stepScript();
     }
   };
-  private TimeEvent timeoutProgressEvent = new TimeEvent(0) {
+
+  private final TimeEvent timeoutProgressEvent = new TimeEvent(0) {
     public void execute(long t) {
       nextProgress = t + timeout/20;
       simulation.scheduleEvent(this, nextProgress);
@@ -390,12 +391,12 @@ public class LogScriptEngine {
     }
   };
 
-  private Runnable stopSimulationRunnable = new Runnable() {
+  private final Runnable stopSimulationRunnable = new Runnable() {
     public void run() {
       simulation.stopSimulation();
     }
   };
-  private Runnable quitRunnable = new Runnable() {
+  private final Runnable quitRunnable = new Runnable() {
     public void run() {
       simulation.stopSimulation();
       new Thread() {
@@ -414,7 +415,7 @@ public class LogScriptEngine {
     }
   };
 
-  private ScriptLog scriptLog = new ScriptLog() {
+  private final ScriptLog scriptLog = new ScriptLog() {
     public void log(String msg) {
       if (scriptLogObserver != null) {
         scriptLogObserver.update(null, msg);

@@ -47,9 +47,9 @@ import org.contikios.cooja.interfaces.Clock;
  */
 @ClassDescription("Cycle clock")
 public class MspClock extends Clock {
-  private static Logger logger = Logger.getLogger(MspClock.class);
+  private static final Logger logger = Logger.getLogger(MspClock.class);
 
-  private Simulation simulation;
+  private final Simulation simulation;
   
   private long timeDrift; /* Microseconds */
   private double deviation;
@@ -76,7 +76,7 @@ public class MspClock extends Clock {
   }
   
   public void setDeviation(double deviation) {
-    assert (deviation>0.0) && (deviation<=1.0);
+    assert deviation > 0.0 && deviation <= 1.0;
     this.deviation = deviation;
   }
 

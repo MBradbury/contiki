@@ -47,7 +47,7 @@ public abstract class AbstractWakeupMote implements Mote {
       AbstractWakeupMote.this.execute(t);
     }
     public String toString() {
-      return "EXECUTE " + this.getClass().getName();
+      return "EXECUTE " + AbstractWakeupMote.this.getClass().getName();
     }
   };
 
@@ -122,7 +122,7 @@ public abstract class AbstractWakeupMote implements Mote {
 //      simulation = getSimulation();
 //    }
 
-      assert simulation.isSimulationThread() : "Scheduling event from non-simulation thread";
+    assert simulation.isSimulationThread() : "Scheduling event from non-simulation thread";
       
     if (executeMoteEvent.isScheduled() &&
         executeMoteEvent.getTime() <= time) {

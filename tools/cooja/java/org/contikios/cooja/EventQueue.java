@@ -31,12 +31,19 @@
 package org.contikios.cooja;
 
 import java.util.PriorityQueue;
+import java.util.function.Predicate;
 
 /**
  * @author Joakim Eriksson (ported to COOJA by Fredrik Osterlind)
  */
 public final class EventQueue {
   private final PriorityQueue<TimeEvent> queue = new PriorityQueue<TimeEvent>();
+
+  private long event_add = 0;
+  private long event_remove = 0;
+  private long event_add_remove = 0;
+  private long event_clear = 0;
+  private long event_pop = 0;
 
   /**
    * Should only be called from simulation thread!
@@ -54,12 +61,15 @@ public final class EventQueue {
       if (event.isScheduled()) {
         throw new IllegalStateException("Event is already scheduled: " + event);
       }
+      ++event_add_remove;
       removeFromQueue(event);
     }
 
     queue.add(event);
 
     event.setScheduled(true);
+
+    ++event_add;
   }
 
   /**
@@ -76,14 +86,14 @@ public final class EventQueue {
       event.setScheduled(false);
     }
 
+    ++event_remove;
+
     return removed;
   }
 
-  public void removeAll() {
-    TimeEvent event = popFirst();
-    while (event != null) {
-      event = popFirst();
-    }
+  public void clear() {
+    queue.clear();
+    ++event_clear;
   }
 
   /**
@@ -92,29 +102,52 @@ public final class EventQueue {
    * @return Event
    */
   public TimeEvent popFirst() {
-    TimeEvent tmp = queue.poll();
-    if (tmp == null) {
-      return null;
+    TimeEvent tmp;
+
+    while (true)
+    {
+      tmp = queue.poll();
+
+      if (tmp == null) {
+        return null;
+      }
+
+      boolean scheduled = tmp.isScheduled();
+
+      // No longer scheduled!
+      tmp.setScheduled(false);
+
+      if (scheduled)
+      {
+        break;
+      }
+
+      // If not scheduled, then find the next scheduled event
     }
 
-    boolean scheduled = tmp.isScheduled();
-
-    // No longer scheduled!
-    tmp.setScheduled(false);
-
-    if (!scheduled) {
-      // pop and return another event instead
-      return popFirst();
-    }
+    ++event_pop;
 
     return tmp;
   }
 
-  public TimeEvent peekFirst() {
-    return queue.peek();
+  public boolean isEmpty() {
+    return queue.isEmpty();
+  }
+
+  public boolean removeIf(Predicate<TimeEvent> filter) {
+    return queue.removeIf(filter);
   }
 
   public String toString() {
     return "EventQueue with " + queue.size() + " events";
+  }
+
+  public String perfstats() {
+    return "{ADD:" + event_add +
+           ",REMOVE:" + event_remove +
+           ",ADD_REMOVE:" + event_add_remove +
+           ",CLEAR:" + event_clear +
+           ",POP:" + event_pop +
+           "}";
   }
 }
