@@ -292,8 +292,6 @@ public class Cooja extends Observable {
 
   private static final String WINDOW_TITLE = "Cooja: The Contiki Network Simulator";
 
-  private Cooja cooja;
-
   private Simulation mySimulation;
 
   protected GUIEventHandler guiEventHandler = new GUIEventHandler();
@@ -357,7 +355,7 @@ public class Cooja extends Observable {
    * @param desktop Desktop pane
    */
   public Cooja(JDesktopPane desktop) {
-    cooja = this;
+    //cooja = this;
     mySimulation = null;
     myDesktopPane = desktop;
 
@@ -451,6 +449,8 @@ public class Cooja extends Observable {
         tryStartPlugin(pluginClass, this, null, null);
       }
     }
+
+    Runtime.getRuntime().addShutdownHook(new ShutdownHandler(this));
   }
 
 
@@ -529,7 +529,7 @@ public class Cooja extends Observable {
   public void setVisualizedInFrame(boolean visualized) {
     if (visualized) {
       if (!isVisualizedInFrame()) {
-        configureFrame(cooja, false);
+        configureFrame(this, false);
       }
     } else {
       if (frame != null) {
@@ -620,7 +620,7 @@ public class Cooja extends Observable {
   private void doLoadConfigAsync(final boolean ask, final boolean quick, final File file) {
     new Thread(new Runnable() {
       public void run() {
-        cooja.doLoadConfig(ask, quick, file, null);
+        Cooja.this.doLoadConfig(ask, quick, file, null);
       }
     }).start();
   }
@@ -931,7 +931,7 @@ public class Cooja extends Observable {
         public void actionPerformed(ActionEvent e) {
           Object pluginClass = ((JMenuItem)e.getSource()).getClientProperty("class");
           Object mote = ((JMenuItem)e.getSource()).getClientProperty("mote");
-          tryStartPlugin((Class<? extends Plugin>) pluginClass, cooja, getSimulation(), (Mote)mote);
+          tryStartPlugin((Class<? extends Plugin>) pluginClass, Cooja.this, getSimulation(), (Mote)mote);
         }
       };
       private JMenuItem createMenuItem(Class<? extends Plugin> newPluginClass, int pluginType) {
@@ -1888,7 +1888,7 @@ public class Cooja extends Observable {
 
     // Show plugin if visualizer type
     if (activate && plugin.getCooja() != null) {
-      cooja.showPlugin(plugin);
+      showPlugin(plugin);
     }
 
     return plugin;
@@ -2051,7 +2051,7 @@ public class Cooja extends Observable {
       public void actionPerformed(ActionEvent e) {
         Object pluginClass = ((JMenuItem)e.getSource()).getClientProperty("class");
         Object mote = ((JMenuItem)e.getSource()).getClientProperty("mote");
-        tryStartPlugin((Class<? extends Plugin>) pluginClass, cooja, getSimulation(), (Mote)mote);
+        tryStartPlugin((Class<? extends Plugin>) pluginClass, Cooja.this, getSimulation(), (Mote)mote);
       }
     };
 
@@ -2403,10 +2403,10 @@ public class Cooja extends Observable {
     do {
       try {
         shouldRetry = false;
-        cooja.doRemoveSimulation(false);
+        doRemoveSimulation(false);
         PROGRESS_WARNINGS.clear();
         newSim = loadSimulationConfig(fileToLoad, quick, manualRandomSeed);
-        cooja.setSimulation(newSim, false);
+        setSimulation(newSim, false);
 
         /* Optionally show compilation warnings */
         boolean hideWarn = Boolean.parseBoolean(
@@ -2468,10 +2468,10 @@ public class Cooja extends Observable {
         do {
           try {
             shouldRetry = false;
-            cooja.doRemoveSimulation(false);
+            Cooja.this.doRemoveSimulation(false);
             PROGRESS_WARNINGS.clear();
             Simulation newSim = loadSimulationConfig(root, true, new Long(randomSeed));
-            cooja.setSimulation(newSim, false);
+            Cooja.this.setSimulation(newSim, false);
 
             if (autoStart) {
               newSim.startSimulation();
@@ -2489,11 +2489,11 @@ public class Cooja extends Observable {
           } catch (UnsatisfiedLinkError e) {
             shouldRetry = showErrorDialog(frame, "Simulation reload error", e, true);
 
-            cooja.doRemoveSimulation(false);
+            Cooja.this.doRemoveSimulation(false);
           } catch (SimulationCreationException e) {
             shouldRetry = showErrorDialog(frame, "Simulation reload error", e, true);
 
-            cooja.doRemoveSimulation(false);
+            Cooja.this.doRemoveSimulation(false);
           }
         } while (shouldRetry);
 
@@ -2676,7 +2676,7 @@ public class Cooja extends Observable {
     Simulation newSim = new Simulation(this);
     boolean createdOK = CreateSimDialog.showDialog(Cooja.getTopParentContainer(), newSim);
     if (createdOK) {
-      cooja.setSimulation(newSim, true);
+      setSimulation(newSim, true);
     }
   }
 
@@ -2706,7 +2706,7 @@ public class Cooja extends Observable {
             WINDOW_TITLE, JOptionPane.YES_NO_CANCEL_OPTION,
             JOptionPane.WARNING_MESSAGE, null, options, s1);
         if (n == JOptionPane.YES_OPTION) {
-          if (cooja.doSaveConfig(true) == null) {
+          if (doSaveConfig(true) == null) {
             return;
           }
         } else if (n == JOptionPane.CANCEL_OPTION) {
@@ -2935,10 +2935,10 @@ public class Cooja extends Observable {
   private class GUIEventHandler implements ActionListener {
     public void actionPerformed(ActionEvent e) {
       if (e.getActionCommand().equals("create mote type")) {
-        cooja.doCreateMoteType((Class<? extends MoteType>) ((JMenuItem) e
+        Cooja.this.doCreateMoteType((Class<? extends MoteType>) ((JMenuItem) e
             .getSource()).getClientProperty("class"));
       } else if (e.getActionCommand().equals("add motes")) {
-        cooja.doAddMotes((MoteType) ((JMenuItem) e.getSource())
+        Cooja.this.doAddMotes((MoteType) ((JMenuItem) e.getSource())
             .getClientProperty("motetype"));
       } else if (e.getActionCommand().equals("edit paths")) {
         ExternalToolsDialog.showDialog(Cooja.getTopParentContainer());
@@ -4440,7 +4440,7 @@ public class Cooja extends Observable {
   GUIAction newSimulationAction = new GUIAction("New simulation...", KeyEvent.VK_N, KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK)) {
 		private static final long serialVersionUID = 5053703908505299911L;
 		public void actionPerformed(ActionEvent e) {
-      cooja.doCreateSimulation(true);
+      Cooja.this.doCreateSimulation(true);
     }
     public boolean shouldBeEnabled() {
       return true;
@@ -4449,7 +4449,7 @@ public class Cooja extends Observable {
   GUIAction closeSimulationAction = new GUIAction("Close simulation", KeyEvent.VK_C) {
 		private static final long serialVersionUID = -4783032948880161189L;
 		public void actionPerformed(ActionEvent e) {
-      cooja.doRemoveSimulation(true);
+      Cooja.this.doRemoveSimulation(true);
     }
     public boolean shouldBeEnabled() {
       return getSimulation() != null;
@@ -4463,7 +4463,7 @@ public class Cooja extends Observable {
         final File file = getLastOpenedFile();
         new Thread(new Runnable() {
           public void run() {
-            cooja.doLoadConfig(true, true, file, null);
+            Cooja.this.doLoadConfig(true, true, file, null);
           }
         }).start();
         return;
@@ -4493,7 +4493,7 @@ public class Cooja extends Observable {
   GUIAction saveSimulationAction = new GUIAction("Save simulation as...", KeyEvent.VK_S) {
 		private static final long serialVersionUID = 1132582220401954286L;
 		public void actionPerformed(ActionEvent e) {
-      cooja.doSaveConfig(true);
+      Cooja.this.doSaveConfig(true);
     }
     public boolean shouldBeEnabled() {
       if (isVisualizedInApplet()) {
@@ -4594,7 +4594,7 @@ public class Cooja extends Observable {
   GUIAction exitCoojaAction = new GUIAction("Exit", 'x') {
 		private static final long serialVersionUID = 7523822251658687665L;
 		public void actionPerformed(ActionEvent e) {
-      cooja.doQuit(true);
+      Cooja.this.doQuit(true);
     }
     public boolean shouldBeEnabled() {
       if (isVisualizedInApplet()) {
@@ -4642,7 +4642,7 @@ public class Cooja extends Observable {
           Class<Plugin> pluginClass =
             (Class<Plugin>) ((JMenuItem) e.getSource()).getClientProperty("class");
           Mote mote = (Mote) ((JMenuItem) e.getSource()).getClientProperty("mote");
-          tryStartPlugin(pluginClass, cooja, mySimulation, mote);
+          tryStartPlugin(pluginClass, Cooja.this, mySimulation, mote);
         }
       }).start();
     }
@@ -4735,5 +4735,16 @@ public class Cooja extends Observable {
     }
   };
 
-}
+  private static class ShutdownHandler extends Thread {
+    private final Cooja cooja;
 
+    public ShutdownHandler(Cooja cooja) {
+      super("Cooja-Shutdown");
+      this.cooja = cooja;
+    }
+
+    public void run() {
+      cooja.getSimulation().stopSimulation(true);
+    }
+  }
+}
