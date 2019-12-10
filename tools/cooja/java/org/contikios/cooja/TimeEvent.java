@@ -77,9 +77,9 @@ public abstract class TimeEvent implements Comparable<TimeEvent> {
     return "" + time + (name != null ? ": " + name : "");
   }
 
-  public int compareTo(TimeEvent other) {
+  public final int compareTo(TimeEvent other) {
+    //return Long.compare(time, other.time);
     return (time < other.time) ? -1 :
            (time > other.time) ? +1 : 0;
   }
-
 }
