@@ -42,13 +42,12 @@ package org.contikios.cooja;
 public abstract class MoteTimeEvent extends TimeEvent {
   private final Mote mote;
 
-  public MoteTimeEvent(Mote mote, long time) {
-    super(time);
+  public MoteTimeEvent(Mote mote) {
+    super();
     this.mote = mote;
   }
 
   public Mote getMote() {
     return mote;
   }
-
 }

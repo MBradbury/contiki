@@ -37,7 +37,50 @@ import java.util.function.Predicate;
  * @author Joakim Eriksson (ported to COOJA by Fredrik Osterlind)
  */
 public final class EventQueue {
-  private final PriorityQueue<TimeEvent> queue = new PriorityQueue<TimeEvent>();
+
+  private long count = 0;
+
+  public final class Pair implements Comparable<Pair> {
+    public final TimeEvent event;
+    public final long time;
+
+    private final long uuid;
+
+    public Pair(TimeEvent event, long time, long uuid) {
+      this.event = event;
+      this.time = time;
+      this.uuid = uuid;
+    }
+
+    public final int compareTo(Pair other) {
+      if (time < other.time)
+      {
+        return -1;
+      }
+      else if (time > other.time)
+      {
+        return +1;
+      }
+      else
+      {
+        // Tie breaker, to prioritise events based on insertion order
+        if (uuid < other.uuid)
+        {
+          return -1;
+        }
+        else if (uuid > other.uuid)
+        {
+          return +1;
+        }
+        else
+        {
+          throw new RuntimeException("Bad compare");
+        }
+      }
+    }
+  }
+
+  private final PriorityQueue<Pair> queue = new PriorityQueue<Pair>();
 
   private long event_add = 0;
   private long event_remove = 0;
@@ -52,11 +95,6 @@ public final class EventQueue {
    * @param time Time
    */
   public void addEvent(TimeEvent event, long time) {
-    event.time = time;
-    addEvent(event);
-  }
-
-  private void addEvent(TimeEvent event) {
     if (event.isQueued()) {
       if (event.isScheduled()) {
         throw new IllegalStateException("Event is already scheduled: " + event);
@@ -65,7 +103,10 @@ public final class EventQueue {
       removeFromQueue(event);
     }
 
-    queue.add(event);
+    // Each event is given a monotonically increasing unique id.
+    // This is used in a tiebreaker in the queue, so events that are
+    // inserted earlier are executed first.
+    queue.add(new Pair(event, time, count++));
 
     event.setScheduled(true);
 
@@ -79,7 +120,9 @@ public final class EventQueue {
    * @return True if event was removed
    */
   private boolean removeFromQueue(TimeEvent event) {
-    boolean removed = queue.remove(event);
+    boolean removed = queue.removeIf((Pair p) -> p.event == event);
+
+    assert removed == event.isQueued();
 
     if (removed)
     {
@@ -101,8 +144,8 @@ public final class EventQueue {
    *
    * @return Event
    */
-  public TimeEvent popFirst() {
-    TimeEvent tmp;
+  public Pair popFirst() {
+    Pair tmp;
 
     while (true)
     {
@@ -112,10 +155,10 @@ public final class EventQueue {
         return null;
       }
 
-      boolean scheduled = tmp.isScheduled();
+      boolean scheduled = tmp.event.isScheduled();
 
-      // No longer scheduled!
-      tmp.setScheduled(false);
+      // No longer scheduled or queued
+      tmp.event.setScheduled(false);
 
       if (scheduled)
       {
@@ -134,8 +177,8 @@ public final class EventQueue {
     return queue.isEmpty();
   }
 
-  public boolean removeIf(Predicate<TimeEvent> filter) {
-    return queue.removeIf(filter);
+  public boolean removeIf(final Predicate<TimeEvent> pred) {
+    return queue.removeIf((Pair p) -> pred.test(p.event));
   }
 
   public String toString() {

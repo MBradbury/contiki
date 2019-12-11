@@ -62,7 +62,7 @@ public class MicaZID extends MoteID {
     private MicaZMote mote;
     private int persistentSetIDCounter = 1000;
 
-    TimeEvent persistentSetIDEvent = new MoteTimeEvent(mote, 0) {
+    private final TimeEvent persistentSetIDEvent = new MoteTimeEvent(mote) {
         public void execute(long t) {
             if (persistentSetIDCounter-- > 0) {
                 setMoteID(moteID);

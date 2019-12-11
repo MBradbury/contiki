@@ -33,19 +33,12 @@ package org.contikios.cooja;
 /**
  * @author Joakim Eriksson (ported to COOJA by Fredrik Osterlind)
  */
-public abstract class TimeEvent implements Comparable<TimeEvent> {
-  
+public abstract class TimeEvent {
+
   private boolean isQueued = false;
   private boolean isScheduled = false;
 
-  protected long time;
-
-  public TimeEvent(long time) {
-    this.time = time;
-  }
-
-  public final long getTime() {
-    return time;
+  public TimeEvent() {
   }
 
   public boolean isScheduled() {
@@ -63,12 +56,6 @@ public abstract class TimeEvent implements Comparable<TimeEvent> {
 
   public void remove() {
     isScheduled = false;
-  }
-
-  public final int compareTo(TimeEvent other) {
-    //return Long.compare(time, other.time);
-    return (time < other.time) ? -1 :
-           (time > other.time) ? +1 : 0;
   }
 
   public abstract void execute(long t);

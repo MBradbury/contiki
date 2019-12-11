@@ -111,7 +111,7 @@ public class MyDummyPlugin extends VisPlugin {
     setSize(300,100);
   }
 
-  private TimeEvent repeatEvent = new TimeEvent(0) {
+  private final TimeEvent repeatEvent = new TimeEvent() {
     public void execute(long t) {
       logger.info("Repeat event: simulation time is now: " + sim.getSimulationTimeMillis() + " ms");
 

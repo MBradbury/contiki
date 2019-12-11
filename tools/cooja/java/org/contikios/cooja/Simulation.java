@@ -176,6 +176,10 @@ public class Simulation extends Observable implements Runnable {
     return simulationThread == Thread.currentThread();
   }
 
+  public boolean isSimulationThreadOrNull() {
+    return simulationThread == Thread.currentThread() || simulationThread == null;
+  }
+
   /**
    * Schedule simulation event for given time.
    * Already scheduled events must be removed before they are rescheduled.
@@ -190,12 +194,15 @@ public class Simulation extends Observable implements Runnable {
   public void scheduleEvent(final TimeEvent e, final long time) {
     if (isRunning) {
       /* TODO Strict scheduling from simulation thread */
-      assert isSimulationThread() : "Scheduling event from non-simulation thread: " + e;
+      assert isSimulationThread() : "Scheduling event from non-simulation thread: " + e + "(" + simulationThread + "," + Thread.currentThread() + ")";
     }
+
+    assert time >= getSimulationTime() : "Scheduling event " + e + " at bad time " + time + " >= " + getSimulationTime();
+
     eventQueue.addEvent(e, time);
   }
 
-  private final TimeEvent delayEvent = new TimeEvent(0) {
+  private final TimeEvent delayEvent = new TimeEvent() {
     public void execute(long t) {
       if (speedLimitNone) {
         /* As fast as possible: no need to reschedule delay event */
@@ -229,7 +236,7 @@ public class Simulation extends Observable implements Runnable {
     }
   };
 
-  private final TimeEvent millisecondEvent = new TimeEvent(0) {
+  private final TimeEvent millisecondEvent = new TimeEvent() {
     public void execute(long t) {
       if (!hasMillisecondObservers) {
         return;
@@ -259,7 +266,7 @@ public class Simulation extends Observable implements Runnable {
     this.setChanged();
     this.notifyObservers(this);
 
-    TimeEvent nextEvent = null;
+    EventQueue.Pair nextEvent = null;
     try {
       while (isRunning) {
 
@@ -274,11 +281,11 @@ public class Simulation extends Observable implements Runnable {
           throw new RuntimeException("No more events");
         }
         if (nextEvent.time < currentSimulationTime) {
-          throw new RuntimeException("Next event is in the past: " + nextEvent.time + " < " + currentSimulationTime + ": " + nextEvent);
+          throw new RuntimeException("Next event is in the past: " + nextEvent.time + " < " + currentSimulationTime + ": " + nextEvent.event);
         }
         currentSimulationTime = nextEvent.time;
         //logger.info("Executing event #" + EVENT_COUNTER++ + " @ " + currentSimulationTime + ": " + nextEvent);
-        nextEvent.execute(currentSimulationTime);
+        nextEvent.event.execute(currentSimulationTime);
 
         if (stopSimulation) {
           isRunning = false;
@@ -296,8 +303,8 @@ public class Simulation extends Observable implements Runnable {
     			System.exit(1);
     		} else {
     		  String title = "Simulation error";
-    		  if (nextEvent instanceof MoteTimeEvent) {
-    		    title += ": " + ((MoteTimeEvent)nextEvent).getMote();
+    		  if (nextEvent.event instanceof MoteTimeEvent) {
+    		    title += ": " + ((MoteTimeEvent)nextEvent.event).getMote();
     		  }
     		  Cooja.showErrorDialog(Cooja.getTopParentContainer(), title, e, false);
     		}
@@ -354,7 +361,7 @@ public class Simulation extends Observable implements Runnable {
     stopSimulation = true;
 
     if (block) {
-      if (Thread.currentThread() == simulationThread) {
+      if (isSimulationThread()) {
         return;
       }
 
@@ -387,7 +394,7 @@ public class Simulation extends Observable implements Runnable {
     if (isRunning()) {
       return;
     }
-    TimeEvent stopEvent = new TimeEvent(0) {
+    final TimeEvent stopEvent = new TimeEvent() {
       public void execute(long t) {
         /* Stop simulation */
         stopSimulation();

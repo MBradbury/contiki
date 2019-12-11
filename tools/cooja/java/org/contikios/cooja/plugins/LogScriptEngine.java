@@ -366,7 +366,7 @@ public class LogScriptEngine {
     }
   }
 
-  private final TimeEvent timeoutEvent = new TimeEvent(0) {
+  private final TimeEvent timeoutEvent = new TimeEvent() {
     public void execute(long t) {
       if (!scriptActive) {
         return;
@@ -378,7 +378,7 @@ public class LogScriptEngine {
     }
   };
 
-  private final TimeEvent timeoutProgressEvent = new TimeEvent(0) {
+  private final TimeEvent timeoutProgressEvent = new TimeEvent() {
     public void execute(long t) {
       nextProgress = t + timeout/20;
       simulation.scheduleEvent(this, nextProgress);
@@ -469,7 +469,7 @@ public class LogScriptEngine {
 
     public void generateMessage(final long delay, final String msg) {
       final Mote currentMote = (Mote) engine.get("mote");
-      final TimeEvent generateEvent = new TimeEvent(0) {
+      final TimeEvent generateEvent = new TimeEvent() {
         public void execute(long t) {
           if (scriptThread == null ||
               !scriptThread.isAlive()) {
