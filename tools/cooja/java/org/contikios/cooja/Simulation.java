@@ -58,10 +58,10 @@ public class Simulation extends Observable implements Runnable {
 
   //private long EVENT_COUNTER = 0;
 
-  private Vector<Mote> motes = new Vector<Mote>();
-  private Vector<Mote> motesUninit = new Vector<Mote>();
+  private final Vector<Mote> motes = new Vector<Mote>();
+  private final Vector<Mote> motesUninit = new Vector<Mote>();
   
-  private Vector<MoteType> moteTypes = new Vector<MoteType>();
+  private final Vector<MoteType> moteTypes = new Vector<MoteType>();
 
   /* If true, run simulation at full speed */
   private boolean speedLimitNone = true;
@@ -78,7 +78,7 @@ public class Simulation extends Observable implements Runnable {
 
   private RadioMedium currentRadioMedium = null;
 
-  private static Logger logger = Logger.getLogger(Simulation.class);
+  private static final Logger logger = Logger.getLogger(Simulation.class);
 
   private boolean isRunning = false;
 
@@ -86,7 +86,7 @@ public class Simulation extends Observable implements Runnable {
 
   private Thread simulationThread = null;
 
-  private Cooja cooja = null;
+  private final Cooja cooja;
 
   private long randomSeed = 123456;
 
@@ -94,7 +94,7 @@ public class Simulation extends Observable implements Runnable {
 
   private long maxMoteStartupDelay = 1000*MILLISECOND;
 
-  private SafeRandom randomGenerator;
+  private final SafeRandom randomGenerator;
 
   private boolean hasMillisecondObservers = false;
   private final MillisecondObservable millisecondObservable = new MillisecondObservable();
@@ -106,11 +106,11 @@ public class Simulation extends Observable implements Runnable {
   }
 
   /* Event queue */
-  private EventQueue eventQueue = new EventQueue();
+  private final EventQueue eventQueue = new EventQueue();
 
   /* Poll requests */
   private boolean hasPollRequests = false;
-  private ArrayDeque<Runnable> pollRequests = new ArrayDeque<Runnable>();
+  private final ArrayDeque<Runnable> pollRequests = new ArrayDeque<Runnable>();
 
 
   /**
@@ -456,7 +456,7 @@ public class Simulation extends Observable implements Runnable {
     this.maxMoteStartupDelay = Math.max(0, maxMoteStartupDelay);
   }
 
-  private SimEventCentral eventCentral = new SimEventCentral(this);
+  private final SimEventCentral eventCentral = new SimEventCentral(this);
   public SimEventCentral getEventCentral() {
     return eventCentral;
   }
