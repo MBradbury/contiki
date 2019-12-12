@@ -87,6 +87,7 @@ public final class EventQueue {
   private long event_add_remove = 0;
   private long event_clear = 0;
   private long event_pop = 0;
+  private int max_queue_length = 0;
 
   /**
    * Should only be called from simulation thread!
@@ -111,6 +112,8 @@ public final class EventQueue {
     event.setScheduled(true);
 
     ++event_add;
+
+    max_queue_length = Math.max(max_queue_length, queue.size());
   }
 
   /**
@@ -191,6 +194,7 @@ public final class EventQueue {
            ",ADD_REMOVE:" + event_add_remove +
            ",CLEAR:" + event_clear +
            ",POP:" + event_pop +
+           ",MAX_LEN:" + max_queue_length +
            "}";
   }
 }
