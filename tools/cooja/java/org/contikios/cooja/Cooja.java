@@ -4744,7 +4744,10 @@ public class Cooja extends Observable {
     }
 
     public void run() {
-      cooja.getSimulation().stopSimulation(true);
+      Simulation simulation = cooja.getSimulation();
+      if (simulation != null) {
+        simulation.stopSimulation(true);
+      }
     }
   }
 }
