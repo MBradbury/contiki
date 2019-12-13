@@ -84,7 +84,7 @@ import org.contikios.cooja.mspmote.interfaces.MspClock;
  * @author Fredrik Osterlind
  */
 public abstract class MspMote extends AbstractEmulatedMote implements Mote, WatchpointMote {
-  private static Logger logger = Logger.getLogger(MspMote.class);
+  private static final Logger logger = Logger.getLogger(MspMote.class);
 
   private final static int EXECUTE_DURATION_US = 1; /* We always execute in 1 us steps */
 
@@ -156,7 +156,7 @@ public abstract class MspMote extends AbstractEmulatedMote implements Mote, Watc
       });
 
       try {
-        debuggingInfo = ((MspMoteType)getType()).getFirmwareDebugInfo();
+        debuggingInfo = getType().getFirmwareDebugInfo();
       } catch (IOException e) {
         throw (RuntimeException) new RuntimeException("Error: " + e.getMessage()).initCause(e);
       }
@@ -234,13 +234,13 @@ public abstract class MspMote extends AbstractEmulatedMote implements Mote, Watc
 
     logger.info("Loading firmware from: " + fileELF.getAbsolutePath());
     Cooja.setProgressMessage("Loading " + fileELF.getName());
-    node.loadFirmware(((MspMoteType)getType()).getELF());
+    node.loadFirmware(getType().getELF());
 
     /* Throw exceptions at bad memory access */
     /*myCpu.setThrowIfWarning(true);*/
 
     /* Create mote address memory */
-    MapTable map = ((MspMoteType)getType()).getELF().getMap();
+    MapTable map = getType().getELF().getMap();
     MapEntry[] allEntries = map.getAllEntries();
     myMemory = new MspMoteMemory(this, allEntries, myCpu);
 
@@ -255,7 +255,8 @@ public abstract class MspMote extends AbstractEmulatedMote implements Mote, Watc
   public void idUpdated(int newID) {
   }
 
-  public MoteType getType() {
+  @Override
+  public MspMoteType getType() {
     return myMoteType;
   }
 
@@ -414,7 +415,7 @@ public abstract class MspMote extends AbstractEmulatedMote implements Mote, Watc
     }
 
     try {
-      debuggingInfo = ((MspMoteType)getType()).getFirmwareDebugInfo();
+      debuggingInfo = getType().getFirmwareDebugInfo();
     } catch (IOException e) {
       throw (RuntimeException) new RuntimeException("Error: " + e.getMessage()).initCause(e);
     }

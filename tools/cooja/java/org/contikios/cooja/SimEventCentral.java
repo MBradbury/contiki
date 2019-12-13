@@ -122,7 +122,7 @@ public class SimEventCentral {
       observable.deleteObserver(observer);
     }
   }
-  private ArrayList<MoteObservation> moteObservations;
+  private final ArrayList<MoteObservation> moteObservations;
 
   
   /* ADDED/REMOVED MOTES */
@@ -197,7 +197,7 @@ public class SimEventCentral {
     }
   }
   private int logOutputBufferSize;
-  private ArrayDeque<LogOutputEvent> logOutputEvents;
+  private final ArrayDeque<LogOutputEvent> logOutputEvents;
   public interface LogOutputListener extends MoteCountListener {
     public void removedLogOutput(LogOutputEvent ev);
     public void newLogOutput(LogOutputEvent ev);

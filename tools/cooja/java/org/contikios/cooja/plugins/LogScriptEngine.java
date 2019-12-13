@@ -60,14 +60,14 @@ import org.contikios.cooja.TimeEvent;
  * @author Fredrik Osterlind
  */
 public class LogScriptEngine {
-  private static Logger logger = Logger.getLogger(LogScriptEngine.class);
+  private static final Logger logger = Logger.getLogger(LogScriptEngine.class);
   private static final long DEFAULT_TIMEOUT = 20*60*1000*Simulation.MILLISECOND; /* 1200s = 20 minutes */
 
-  private ScriptEngine engine =
+  private final ScriptEngine engine =
     new ScriptEngineManager().getEngineByName("JavaScript");
 
   /* Log output listener */
-  private LogOutputListener logOutputListener = new LogOutputListener() {
+  private final LogOutputListener logOutputListener = new LogOutputListener() {
     public void moteWasAdded(Mote mote) {
     }
     public void moteWasRemoved(Mote mote) {
@@ -92,7 +92,7 @@ public class LogScriptEngine {
 
   private boolean stopSimulation = false, quitCooja = false;
 
-  private Simulation simulation;
+  private final Simulation simulation;
 
   private boolean scriptActive = false;
 

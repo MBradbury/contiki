@@ -71,7 +71,7 @@ import org.contikios.cooja.mspmote.interfaces.SkyTemperature;
 @ClassDescription("Sky mote")
 @AbstractionLevelDescription("Emulated level")
 public class SkyMoteType extends MspMoteType {
-  private static Logger logger = Logger.getLogger(SkyMoteType.class);
+  private static final Logger logger = Logger.getLogger(SkyMoteType.class);
 
   protected MspMote createMote(Simulation simulation) {
     return new SkyMote(this, simulation);

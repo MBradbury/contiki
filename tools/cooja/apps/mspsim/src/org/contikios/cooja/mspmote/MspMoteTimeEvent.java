@@ -42,15 +42,15 @@ import org.contikios.cooja.MoteTimeEvent;
 public abstract class MspMoteTimeEvent extends MoteTimeEvent {
   private static final Logger logger = Logger.getLogger(MspMoteTimeEvent.class);
 
-  private final MspMote mote;
+  private final MspMote mspmote;
 
   public MspMoteTimeEvent(MspMote mote) {
     super(mote);
-    this.mote = mote;
+    this.mspmote = mote;
   }
 
   @Override
   public void execute(long t) {
-    mote.execute(t, 0);
+    mspmote.execute(t, 0);
   }
 }

@@ -62,7 +62,7 @@ import org.contikios.cooja.interfaces.PolledBeforeAllTicks;
  * @author Fredrik Osterlind
  */
 public abstract class MoteInterface extends Observable {
-  private static Logger logger = Logger.getLogger(MoteInterface.class);
+  private static final Logger logger = Logger.getLogger(MoteInterface.class);
 
   /**
    * This method creates an instance of the given class with the given mote as
@@ -78,8 +78,7 @@ public abstract class MoteInterface extends Observable {
   public static final MoteInterface generateInterface(
       Class<? extends MoteInterface> interfaceClass, Mote mote) {
     try {
-      MoteInterface instance = interfaceClass.getConstructor(
-          new Class[] { Mote.class }).newInstance(new Object[] { mote });
+      MoteInterface instance = interfaceClass.getConstructor(Mote.class).newInstance(mote);
 
       return instance;
     } catch (Exception e) {

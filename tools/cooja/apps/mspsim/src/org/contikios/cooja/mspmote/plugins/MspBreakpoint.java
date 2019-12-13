@@ -51,9 +51,9 @@ import se.sics.mspsim.core.MemoryMonitor;
  * @author Fredrik Osterlind
  */
 public class MspBreakpoint implements Watchpoint {
-  private static Logger logger = Logger.getLogger(MspBreakpoint.class);
+  private static final Logger logger = Logger.getLogger(MspBreakpoint.class);
 
-  private MspMote mspMote;
+  private final MspMote mspMote;
 
   private int address = -1; /* Binary address */
   private File codeFile = null; /* Source code, may be null*/

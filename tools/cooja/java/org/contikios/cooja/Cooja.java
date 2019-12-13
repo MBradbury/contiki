@@ -1422,8 +1422,8 @@ public class Cooja extends Observable {
     // Check that interval constructor exists
     try {
       positionerClass
-      .getConstructor(new Class[] { int.class, double.class, double.class,
-          double.class, double.class, double.class, double.class });
+      .getConstructor(int.class, double.class, double.class,
+          double.class, double.class, double.class, double.class);
     } catch (Exception e) {
       logger.fatal("No interval constructor found of positioner: "
           + positionerClass);
@@ -1459,7 +1459,7 @@ public class Cooja extends Observable {
       Class<? extends RadioMedium> radioMediumClass) {
     // Check that simulation constructor exists
     try {
-      radioMediumClass.getConstructor(new Class[] { Simulation.class });
+      radioMediumClass.getConstructor(Simulation.class);
     } catch (Exception e) {
       logger.fatal("No simulation constructor found of radio medium: "
           + radioMediumClass);
@@ -1839,7 +1839,7 @@ public class Cooja extends Observable {
         }
 
         plugin =
-          pluginClass.getConstructor(new Class[] { Mote.class, Simulation.class, Cooja.class })
+          pluginClass.getConstructor(Mote.class, Simulation.class, Cooja.class)
           .newInstance(argMote, argSimulation, argGUI);
 
       } else if (pluginType == PluginType.SIM_PLUGIN || pluginType == PluginType.SIM_STANDARD_PLUGIN
@@ -1852,7 +1852,7 @@ public class Cooja extends Observable {
         }
 
         plugin =
-          pluginClass.getConstructor(new Class[] { Simulation.class, Cooja.class })
+          pluginClass.getConstructor(Simulation.class, Cooja.class)
           .newInstance(argSimulation, argGUI);
 
       } else if (pluginType == PluginType.COOJA_PLUGIN
@@ -1862,7 +1862,7 @@ public class Cooja extends Observable {
         }
 
         plugin =
-          pluginClass.getConstructor(new Class[] { Cooja.class })
+          pluginClass.getConstructor(Cooja.class)
           .newInstance(argGUI);
 
       } else {
@@ -1924,12 +1924,12 @@ public class Cooja extends Observable {
     /* Check plugin constructor */
     try {
       if (pluginType == PluginType.COOJA_PLUGIN || pluginType == PluginType.COOJA_STANDARD_PLUGIN) {
-        pluginClass.getConstructor(new Class[] { Cooja.class });
+        pluginClass.getConstructor(Cooja.class);
       } else if (pluginType == PluginType.SIM_PLUGIN || pluginType == PluginType.SIM_STANDARD_PLUGIN 
     		  || pluginType == PluginType.SIM_CONTROL_PLUGIN) {
-        pluginClass.getConstructor(new Class[] { Simulation.class, Cooja.class });
+        pluginClass.getConstructor(Simulation.class, Cooja.class);
       } else if (pluginType == PluginType.MOTE_PLUGIN) {
-        pluginClass.getConstructor(new Class[] { Mote.class, Simulation.class, Cooja.class });
+        pluginClass.getConstructor(Mote.class, Simulation.class, Cooja.class);
         menuMotePluginClasses.add(pluginClass);
       } else {
         logger.fatal("Could not register plugin, bad plugin type: " + pluginType);
@@ -3163,8 +3163,15 @@ public class Cooja extends Observable {
       externalToolsUserSettingsFile = null;
     }
 
-    /* Look and Feel: Nimbus */
-    setLookAndFeel();
+    boolean headless = args.length > 0 && args[0].startsWith("-nogui=");
+
+    // Avoid setting look and feel if running headless
+    if (!headless) {
+      /* Look and Feel: Nimbus */
+      setLookAndFeel();
+    } else {
+      System.setProperty("java.awt.headless", "true");
+    }
 
     /* Warn at no JAVA_HOME */
     String javaHome = System.getenv().get("JAVA_HOME");
@@ -3248,6 +3255,7 @@ public class Cooja extends Observable {
     	int pluginType = startedPlugin.getClass().getAnnotation(PluginType.class).value();
     	if (pluginType == PluginType.SIM_CONTROL_PLUGIN) {
     	  hasController = true;
+          break;
     	}
       }
 
