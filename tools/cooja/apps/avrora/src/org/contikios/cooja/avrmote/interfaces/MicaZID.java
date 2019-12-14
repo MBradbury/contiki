@@ -133,7 +133,7 @@ public class MicaZID extends MoteID {
             mote.setEEPROM(1, 0xde);
             mote.setEEPROM(2, newID);
             mote.setEEPROM(3, newID >> 8);
-            System.out.println("Setting node id: " + newID);
+            //System.out.println("Setting node id: '" + newID + "'");
             moteMem.setIntValueOf("node_id", newID);
         }
         if (tosID) {
