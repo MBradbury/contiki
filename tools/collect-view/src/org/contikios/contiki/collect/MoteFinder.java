@@ -139,7 +139,7 @@ public class MoteFinder {
       // Wait for the motelist program to finish executing
       readInput.join();
     } catch (Exception e) {
-      throw (IOException) new IOException("Failed to execute '" + fullCommand + "'").initCause(e);
+      throw new IOException("Failed to execute '" + fullCommand + "'", e);
     }
   }
 

@@ -67,10 +67,10 @@ public class SimEventCentral {
     moteObservations = new ArrayList<MoteObservation>();
 
     /* Mote count: notifications */
-    moteCountListeners = new MoteCountListener[0];
+    moteCountListeners = new ArrayList<MoteCountListener>();
 
     /* Log output: notifications and history */
-    logOutputListeners = new LogOutputListener[0];
+    logOutputListeners = new ArrayList<LogOutputListener>();
     logOutputEvents = new ArrayDeque<LogOutputEvent>();
   }
   
@@ -130,8 +130,8 @@ public class SimEventCentral {
     public void moteWasAdded(Mote mote);
     public void moteWasRemoved(Mote mote);
   }
-  private MoteCountListener[] moteCountListeners;
-  private Observer moteCountObserver = new Observer() {
+  private final ArrayList<MoteCountListener> moteCountListeners;
+  private final Observer moteCountObserver = new Observer() {
     public void update(Observable obs, Object obj) {
       if (obj == null || !(obj instanceof Mote)) {
         return;
@@ -168,17 +168,17 @@ public class SimEventCentral {
     }
   };
   public void addMoteCountListener(MoteCountListener listener) {
-    if (moteCountListeners.length == 0) {
+    if (moteCountListeners.size() == 0) {
       /* Observe simulation for added/removed motes */
       simulation.addObserver(moteCountObserver);
     }
 
-    moteCountListeners = ArrayUtils.add(moteCountListeners, listener);
+    moteCountListeners.add(listener);
   }
   public void removeMoteCountListener(MoteCountListener listener) {
-    moteCountListeners = ArrayUtils.remove(moteCountListeners, listener);
+    moteCountListeners.remove(listener);
 
-    if (moteCountListeners.length == 0) {
+    if (moteCountListeners.size() == 0) {
       /* Stop observing simulation for added/removed motes */
       simulation.deleteObserver(moteCountObserver);
     }
@@ -202,8 +202,8 @@ public class SimEventCentral {
     public void removedLogOutput(LogOutputEvent ev);
     public void newLogOutput(LogOutputEvent ev);
   }
-  private LogOutputListener[] logOutputListeners;
-  private Observer logOutputObserver = new Observer() {
+  private final ArrayList<LogOutputListener> logOutputListeners;
+  private final Observer logOutputObserver = new Observer() {
     public void update(Observable obs, Object obj) {
       Mote mote = (Mote) obj;
       String msg = ((Log) obs).getLastLogMessage();
@@ -239,7 +239,7 @@ public class SimEventCentral {
     }
   };
   public void addLogOutputListener(LogOutputListener listener) {
-    if (logOutputListeners.length == 0) {
+    if (logOutputListeners.isEmpty()) {
       /* Start observing all log interfaces */
       Mote[] motes = simulation.getMotes();
       for (Mote m: motes) {
@@ -251,14 +251,14 @@ public class SimEventCentral {
       }
     }
 
-    logOutputListeners = ArrayUtils.add(logOutputListeners, listener);
+    logOutputListeners.add(listener);
     addMoteCountListener(listener);
   }
   public void removeLogOutputListener(LogOutputListener listener) {
-    logOutputListeners = ArrayUtils.remove(logOutputListeners, listener);
+    logOutputListeners.remove(listener);
     removeMoteCountListener(listener);
 
-    if (logOutputListeners.length == 0) {
+    if (logOutputListeners.isEmpty()) {
       /* Stop observing all log interfaces */
       MoteObservation[] observations = moteObservations.toArray(new MoteObservation[0]);
       for (MoteObservation o: observations) {
@@ -309,7 +309,7 @@ public class SimEventCentral {
   
   /* HELP METHODS: MAINTAIN OBSERVERS */
   private void moteWasAdded(Mote mote) {
-    if (logOutputListeners.length > 0) {
+    if (!logOutputListeners.isEmpty()) {
       /* Add another log output observation.
        * (Supports multiple log interfaces per mote) */
       for (MoteInterface mi: mote.getInterfaces().getInterfaces()) {
@@ -336,9 +336,9 @@ public class SimEventCentral {
     return 
     "\nActive mote observations: " + moteObservations.size() +
     "\n" +
-    "\nMote count listeners: " + moteCountListeners.length +
+    "\nMote count listeners: " + moteCountListeners.size() +
     "\n" +
-    "\nLog output listeners: " + logOutputListeners.length +
+    "\nLog output listeners: " + logOutputListeners.size() +
     "\nLog output history: " + logOutputEvents.size()
     ;
   }

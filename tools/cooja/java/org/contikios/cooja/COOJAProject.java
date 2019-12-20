@@ -41,7 +41,7 @@ import org.apache.log4j.Logger;
  * @author Moritz Strübe
  */
 public class COOJAProject {
-	private static Logger logger = Logger.getLogger(COOJAProject.class);
+	private static final Logger logger = Logger.getLogger(COOJAProject.class);
 	
 	
 	public static File[] sarchProjects(File folder){

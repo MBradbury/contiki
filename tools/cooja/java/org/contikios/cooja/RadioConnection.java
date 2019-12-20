@@ -54,21 +54,21 @@ import org.contikios.cooja.interfaces.Radio;
  * @author Fredrik Osterlind
  */
 public class RadioConnection {
-  private static Logger logger = Logger.getLogger(RadioConnection.class);
+  private static final Logger logger = Logger.getLogger(RadioConnection.class);
 
   private static int ID = 0; /* Unique radio connection ID. For internal use */
-  private int id;
+  private final int id;
 
-  private Radio source;
+  private final Radio source;
   
-  private ArrayList<Radio> allDestinations = new ArrayList<Radio>();
-  private ArrayList<Long> allDestinationDelays = new ArrayList<Long>();
+  private final ArrayList<Radio> allDestinations = new ArrayList<Radio>();
+  private final ArrayList<Long> allDestinationDelays = new ArrayList<Long>();
 
-  private ArrayList<Radio> allInterfered = new ArrayList<Radio>();
-  private ArrayList<Radio> onlyInterfered = new ArrayList<Radio>();
-  private ArrayList<Radio> destinationsNonInterfered = new ArrayList<Radio>();
+  private final ArrayList<Radio> allInterfered = new ArrayList<Radio>();
+  private final ArrayList<Radio> onlyInterfered = new ArrayList<Radio>();
+  private final ArrayList<Radio> destinationsNonInterfered = new ArrayList<Radio>();
   
-  private long startTime;
+  private final long startTime;
 
   /**
    * Creates a new radio connection with given source and no destinations.

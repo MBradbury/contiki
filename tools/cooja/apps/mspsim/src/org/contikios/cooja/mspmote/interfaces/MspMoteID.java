@@ -50,10 +50,10 @@ import se.sics.mspsim.core.MemoryMonitor;
  * @author Fredrik Osterlind
  */
 public class MspMoteID extends MoteID {
-	private static Logger logger = Logger.getLogger(MspMoteID.class);
+	private static final Logger logger = Logger.getLogger(MspMoteID.class);
 
-	private MspMote mote;
-	private VarMemory moteMem = null;
+	private final MspMote mote;
+	private final VarMemory moteMem;
 
 	private boolean writeFlashHeader = true;
 	private int moteID = -1;

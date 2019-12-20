@@ -60,7 +60,7 @@ import org.contikios.cooja.interfaces.Radio.RadioEvent;
 @ClassDescription("Disturber mote")
 @AbstractionLevelDescription("Application level")
 public class DisturberMoteType extends AbstractApplicationMoteType {
-  private static Logger logger = Logger.getLogger(DisturberMoteType.class);
+  private static final Logger logger = Logger.getLogger(DisturberMoteType.class);
 
   public DisturberMoteType() {
     super();
@@ -127,5 +127,5 @@ public class DisturberMoteType extends AbstractApplicationMoteType {
     public String toString() {
       return "Disturber " + getID();
     }
-}
+  }
 }
