@@ -47,7 +47,7 @@ import se.sics.mspsim.core.Memory.AccessType;
 import se.sics.mspsim.util.MapEntry;
 
 public class MspMoteMemory implements MemoryInterface {
-  private static Logger logger = Logger.getLogger(MspMoteMemory.class);
+  private static final Logger logger = Logger.getLogger(MspMoteMemory.class);
   private final ArrayList<MapEntry> mapEntries;
   private final MemoryLayout memLayout;
 

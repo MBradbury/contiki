@@ -41,6 +41,7 @@ import org.contikios.cooja.ClassDescription;
 import org.contikios.cooja.Mote;
 import org.contikios.cooja.interfaces.Log;
 import org.contikios.cooja.mote.memory.MemoryInterface;
+import org.contikios.cooja.mote.memory.UnknownVariableException;
 import org.contikios.cooja.mote.memory.VarMemory;
 import org.contikios.cooja.mspmote.MspMote;
 import se.sics.mspsim.core.Memory;
@@ -60,12 +61,14 @@ import se.sics.mspsim.core.MemoryMonitor;
  */
 @ClassDescription("Debugging output")
 public class MspDebugOutput extends Log {
-  private static Logger logger = Logger.getLogger(MspDebugOutput.class);
+  private static final Logger logger = Logger.getLogger(MspDebugOutput.class);
 
-  private final static String CONTIKI_POINTER = "cooja_debug_ptr";
+  private static final String CONTIKI_POINTER = "cooja_debug_ptr";
+
+  private static final int MAX_DEBUG_STRING_LENGTH = 255;
   
-  private MspMote mote;
-  private VarMemory mem;
+  private final MspMote mote;
+  private final VarMemory mem;
   
   private String lastLog = null;
   private MemoryMonitor memoryMonitor = null;
@@ -74,37 +77,41 @@ public class MspDebugOutput extends Log {
     this.mote = (MspMote) mote;
     this.mem = new VarMemory(this.mote.getMemory());
 
-    if (!mem.variableExists(CONTIKI_POINTER)) {
-      /* Disabled */
-      return;
-    }
-    this.mote.getCPU().addWatchPoint((int) mem.getVariableAddress(CONTIKI_POINTER),
+    try {
+      this.mote.getCPU().addWatchPoint((int) mem.getVariableAddress(CONTIKI_POINTER),
         memoryMonitor = new MemoryMonitor.Adapter() {
         @Override
         public void notifyWriteAfter(int adr, int data, Memory.AccessMode mode) {
           String msg = extractString(MspDebugOutput.this.mote.getMemory(), data);
-          if (msg != null && msg.length() > 0) {
+          if (!msg.isEmpty()) {
             lastLog = "DEBUG: " + msg;
             setChanged();
             notifyObservers(MspDebugOutput.this.mote);
           }
-      }
-    });
+        }
+      });
+    } catch (UnknownVariableException e) {
+      // Don't watch for log messages via this variable
+    }
   }
 
   private String extractString(MemoryInterface mem, int address) {
+    final int increment = 8; // Process this many bytes at a time
+
     StringBuilder sb = new StringBuilder();
     while (true) {
-      byte[] data = mem.getMemorySegment(address, 8);
-      address += 8;
+      byte[] data = mem.getMemorySegment(address, increment);
+      address += increment;
+
       for (byte b: data) {
         if (b == 0) {
           return sb.toString();
         }
         sb.append((char)b);
-        if (sb.length() > 256) {
-          /* Maximum size */
-          return sb.toString() + "...";
+        if (sb.length() > MAX_DEBUG_STRING_LENGTH) {
+          // Maximum size
+          sb.append("...");
+          return sb.toString();
         }
       }
     }

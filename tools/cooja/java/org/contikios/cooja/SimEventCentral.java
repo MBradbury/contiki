@@ -186,7 +186,7 @@ public class SimEventCentral {
 
 
   /* LOG OUTPUT */
-  public static class LogOutputEvent extends MoteEvent {
+  public static final class LogOutputEvent extends MoteEvent {
     public final String msg;
     public LogOutputEvent(Mote mote, long time, String msg) {
       super(mote, time);
